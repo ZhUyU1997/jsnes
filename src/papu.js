@@ -1,4 +1,4 @@
-var utils = require("./utils");
+import utils from "./utils";
 
 var CPU_FREQ_NTSC = 1789772.5; //1789772.72727272d;
 // var CPU_FREQ_PAL = 1773447.4;
@@ -1556,4 +1556,4 @@ ChannelTriangle.prototype = {
   },
 };
 
-module.exports = PAPU;
+export default PAPU;

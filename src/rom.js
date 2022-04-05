@@ -1,5 +1,5 @@
-var Mappers = require("./mappers");
-var Tile = require("./tile");
+import Mappers from "./mappers";
+import Tile from "./tile";
 
 var ROM = function (nes) {
   this.nes = nes;
@@ -74,14 +74,30 @@ ROM.prototype = {
   valid: false,
 
   load: function (data) {
-    var i, j, v;
+    var i, j, v, buf;
+    if (typeof data === "string") {
+      buf = new ArrayBuffer(data.length);
+      var bufView = new Uint8Array(buf);
+      for (i = 0; i < data.length; i++) {
+        bufView[i] = data.charCodeAt(i);
+      }
+    } else if (data instanceof ArrayBuffer) {
+      buf = data;
+    }
 
-    if (data.indexOf("NES\x1a") === -1) {
+    data = Array.prototype.slice.call(new Uint8Array(buf));
+    // throw new Error("" + data.length);
+    if (
+      data[0] !== "N".charCodeAt(0) ||
+      data[1] !== "E".charCodeAt(0) ||
+      data[2] !== "S".charCodeAt(0) ||
+      data[3] !== "\x1a".charCodeAt(0)
+    ) {
       throw new Error("Not a valid NES ROM.");
     }
     this.header = new Array(16);
     for (i = 0; i < 16; i++) {
-      this.header[i] = data.charCodeAt(i) & 0xff;
+      this.header[i] = data[i];
     }
     this.romCount = this.header[4];
     this.vromCount = this.header[5] * 2; // Get the number of 4kB banks, not 8kB
@@ -113,7 +129,7 @@ ROM.prototype = {
         if (offset + j >= data.length) {
           break;
         }
-        this.rom[i][j] = data.charCodeAt(offset + j) & 0xff;
+        this.rom[i][j] = data[offset + j];
       }
       offset += 16384;
     }
@@ -125,7 +141,7 @@ ROM.prototype = {
         if (offset + j >= data.length) {
           break;
         }
-        this.vrom[i][j] = data.charCodeAt(offset + j) & 0xff;
+        this.vrom[i][j] = data[offset + j];
       }
       offset += 4096;
     }
@@ -201,4 +217,4 @@ ROM.prototype = {
   },
 };
 
-module.exports = ROM;
+export default ROM;

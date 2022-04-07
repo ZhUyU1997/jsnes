@@ -5,3 +5,5 @@ export default {
   Controller,
   NES,
 };
+
+export { Controller, NES };

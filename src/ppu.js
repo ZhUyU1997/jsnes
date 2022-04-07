@@ -156,7 +156,7 @@ PPU.prototype = {
 
     // Variables used when rendering:
     this.attrib = new Array(32);
-    this.buffer = new Array(256 * 240);
+    this.buffer = new Uint32Array(new ArrayBuffer(256 * 240 * 4));
     this.bgbuffer = new Array(256 * 240);
     this.pixrendered = new Array(256 * 240);
 
@@ -458,15 +458,8 @@ PPU.prototype = {
       }
     }
 
-    var buffer = this.buffer;
-    var i;
-    for (i = 0; i < 256 * 240; i++) {
-      buffer[i] = bgColor;
-    }
-    var pixrendered = this.pixrendered;
-    for (i = 0; i < pixrendered.length; i++) {
-      pixrendered[i] = 65;
-    }
+    this.buffer.fill(bgColor);
+    this.pixrendered.fill(65);
   },
 
   endFrame: function () {
@@ -482,9 +475,7 @@ PPU.prototype = {
         this.sprY[0] >= 0 &&
         this.sprY[0] < 240
       ) {
-        for (i = 0; i < 256; i++) {
-          buffer[(this.sprY[0] << 8) + i] = 0xff5555;
-        }
+        buffer.fill(0xff5555, this.sprY[0] << 8, (this.sprY[0] << 8) + 256);
         for (i = 0; i < 240; i++) {
           buffer[(i << 8) + this.sprX[0]] = 0xff5555;
         }
@@ -496,9 +487,7 @@ PPU.prototype = {
         this.spr0HitY >= 0 &&
         this.spr0HitY < 240
       ) {
-        for (i = 0; i < 256; i++) {
-          buffer[(this.spr0HitY << 8) + i] = 0x55ff55;
-        }
+        buffer.fill(0x55ff55, this.spr0HitY << 8, (this.spr0HitY << 8) + 256);
         for (i = 0; i < 240; i++) {
           buffer[(i << 8) + this.spr0HitX] = 0x55ff55;
         }
@@ -515,28 +504,22 @@ PPU.prototype = {
     ) {
       // Clip left 8-pixels column:
       for (y = 0; y < 240; y++) {
-        for (x = 0; x < 8; x++) {
-          buffer[(y << 8) + x] = 0;
-        }
+        buffer.fill(0, y << 8, (y << 8) + 8);
       }
     }
 
     if (this.clipToTvSize) {
       // Clip right 8-pixels column too:
       for (y = 0; y < 240; y++) {
-        for (x = 0; x < 8; x++) {
-          buffer[(y << 8) + 255 - x] = 0;
-        }
+        buffer.fill(0, (y << 8) + 255 - 7, (y << 8) + 256);
       }
     }
 
     // Clip top and bottom 8 pixels:
     if (this.clipToTvSize) {
       for (y = 0; y < 8; y++) {
-        for (x = 0; x < 256; x++) {
-          buffer[(y << 8) + x] = 0;
-          buffer[((239 - y) << 8) + x] = 0;
-        }
+        buffer.fill(0, y << 8, (y << 8) + 256);
+        buffer.fill(0, (239 - y) << 8, ((239 - y) << 8) + 256);
       }
     }
 

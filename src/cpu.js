@@ -42,9 +42,8 @@ CPU.prototype = {
     // Main memory
     this.mem = new Array(0x10000);
 
-    for (var i = 0; i < 0x2000; i++) {
-      this.mem[i] = 0xff;
-    }
+    this.mem.fill(0xff, 0, 0x2000);
+
     for (var p = 0; p < 4; p++) {
       var j = p * 0x800;
       this.mem[j + 0x008] = 0xf7;
@@ -52,9 +51,8 @@ CPU.prototype = {
       this.mem[j + 0x00a] = 0xdf;
       this.mem[j + 0x00f] = 0xbf;
     }
-    for (var k = 0x2001; k < this.mem.length; k++) {
-      this.mem[k] = 0;
-    }
+
+    this.mem.fill(0, 0x2001, this.mem.length);
 
     // CPU Registers:
     this.REG_ACC = 0;
@@ -1417,7 +1415,7 @@ var OpData = function () {
   this.opdata = new Array(256);
 
   // Set all to invalid instruction (to detect crashes):
-  for (var i = 0; i < 256; i++) this.opdata[i] = 0xff;
+  this.opdata.fill(0xff);
 
   // Now fill in all valid opcodes:
 
